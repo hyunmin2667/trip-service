@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mycom.myapp.travel.dao.TravelDao">
+
+	
+	
+
+	<!-- (사용자 공개) 여행 목록 조회 (planList)-->
+    <select id="travelPlanListPublic" parameterType="String"
+        resultType="com.mycom.myapp.travel.dto.TravelPlanDto">
+        select * from travel_plan
+		where user_id = #{userId}
+		and travel_plan_is_private = false;
+    </select>
+    
+    
+    <!-- 사용자 공개 장소 게시물 목록 조회 -->
+    <select id="travelPlacePostPublic" parameterType="String"
+        resultType="com.mycom.myapp.travel.dto.TravelPlacePostPublicDto">
+        select * from travel_place
+		join travel_day
+		using(travel_day_id)
+		join travel_plan
+		using(travel_plan_id)
+		where user_id = #{userId}
+		and travel_plan_is_private = 0;
+    </select>
+    
+    <!-- 여행 추가 -->
+    <insert id="travelPlanInsert" parameterType="com.mycom.myapp.travel.dto.TravelPlanDto">
+		insert into travel_plan 
+		(user_id,travel_plan_title,travel_plan_start_date,travel_plan_end_date,travel_plan_is_private)
+		values ( 
+		#{userId},
+		#{travelPlanTitle},
+		#{travelPlanStartDate},
+		#{travelPlanEndDate},
+		#{travelPlanIsPrivate}
+		);
+	</insert> 
+    
+    <!-- 여행 list -->
+    <select id="travelPlanList" resultType="com.mycom.myapp.travel.dto.TravelPlanDto">
+    	select * from travel_plan;
+    </select>
+    
+    <!-- 여행 수정 -->
+    <update id="travelPlanUpdate" parameterType="com.mycom.myapp.travel.dto.TravelPlanDto">
+	    update travel_plan set 
+	    <!-- user_id = #{userId} -->
+	    travel_plan_title = #{travelPlanTitle},
+	    travel_plan_start_date = #{travelPlanStartDate},
+	    travel_plan_end_date = #{travelPlanEndDate},
+	    travel_plan_is_private = #{travelPlanIsPrivate}
+		where travel_plan_id = #{travelPlanId};
+    </update>
+    
+    <!--  여행 삭제 -->
+    <delete id="travelPlanDelete" parameterType="Integer">
+	    delete from travel_plan
+		where travel_plan_id = #{travelPlanId};
+    </delete>
+    
+    
+    
+    <!-- 날짜 조회 --> 
+   	<select id="travelDayList" parameterType="Integer" resultType="com.mycom.myapp.travel.dto.TravelDayDto">
+   		select * from travel_day
+   		where travel_plan_id = #{travelPlanId};
+   	</select>
+    
+    
+    <!-- 여행에서 날짜 추가 -->
+	<insert id="travelDayInsert" parameterType="com.mycom.myapp.travel.dto.TravelDayDto">
+		insert into travel_day 
+		(travel_plan_id,travel_day_date,travel_day_day_of_plan)
+		values ( 
+		#{travelPlanId},
+		#{travelDayDate},
+		#{travelDayDayOfPlan}
+		);
+	</insert>
+	
+	<!-- 날짜 수정 (다른 plan으로 넘어가지 못함) --> 
+	<update id="travelDayUpdate" parameterType="com.mycom.myapp.travel.dto.TravelDayDto">
+	    update travel_day set 
+		travel_day_date = #{travelDayDate},
+	    travel_day_day_of_plan = #{travelDayDayOfPlan}
+	    where travel_day_id = #{travelDayId};
+    </update>
+	
+	<!-- 날짜 삭제 -->
+	<delete id="travelDayDelete" parameterType="Integer">
+		delete from travel_day
+		where travel_day_id = #{travelDayId};
+	</delete>
+	
+
+
+	<!-- 장소 -->
+	<!-- 장소 조회(list) --> 
+   	<select id="travelPlaceList" parameterType="Integer" resultType="com.mycom.myapp.travel.dto.TravelPlaceDto">
+   		select * from travel_place
+   		where travel_day_id = #{travelDayId};
+   	</select>
+    
+    
+    <!-- 날짜에서 장소 추가 -->
+	<insert id="travelPlaceInsert" parameterType="com.mycom.myapp.travel.dto.TravelPlaceDto">
+		insert into travel_place 
+		(travel_place_id,travel_day_id)
+		values ( 
+		#{travelPlaceId},
+		#{travelDayId}
+		);
+	</insert>    
+	
+	<!-- 날짜 수정 (다른 plan으로 넘어가지 못함) --> 
+	<update id="travelPlaceUpdate" parameterType="com.mycom.myapp.travel.dto.TravelPlaceDto">
+	    update travel_day set 
+		travel_day_date = #{travelDayDate},
+	    travel_day_day_of_plan = #{travelDayDayOfPlan}
+	    where travel_day_id = #{travelDayId};
+    </update>
+	
+	<!-- 날짜 삭제 -->
+	<delete id="travelPlaceDelete" parameterType="com.mycom.myapp.travel.dto.TravelPlaceDto">
+		delete from travel_place
+		where travel_place_id = #{travelPlaceId}
+		and travel_day_id = #{travelDayId};
+	</delete>
+	
+	<resultMap type="com.mycom.myapp.travel.dto.TravelPlanDto" id="travelPlan">
+		<result column="travel_plan_id" property="travelPlanId"/>
+		<result column="user_id" property="userId"/>
+		<result column="travel_plan_title" property="travelPlanTitle"/>
+		<result column="travel_plan_start_date" property="travelPlanStartDate"/>
+		<result column="travel_plan_end_date" property="travelPlanEndDate"/>
+		<result column="travel_plan_id_private" property="travelPlanIsPrivate"/>
+	</resultMap>
+	
+    
+    <resultMap type="com.mycom.myapp.travel.dto.TravelPlacePostPublicDto" id="travelPlacePostPublic">
+		<result column="travel_plan_id" property="travelPlanId"/>
+		<result column="travel_day_id" property="travelDayId"/>
+		<result column="travel_place_id" property="travelPlaceId"/>
+		<result column="travel_day_date" property="travelDayDate"/>
+		<result column="travel_day_day_of_plan" property="travelDayDayOfPlan"/>
+		<result column="user_id" property="userId"/>
+		<result column="travel_plan_title" property="travelPlanTitle"/>
+		<result column="travel_plan_start_date" property="travelPlanStartDate"/>
+		<result column="travel_plan_end_date" property="travelPlanEndDate"/>
+		<result column="travel_plan_is_private" property="tavelPlanIsPrivate"/>
+		
+	</resultMap>
+    
+    <resultMap type="com.mycom.myapp.travel.dto.TravelDayDto" id="travelDayDto"></resultMap>
+</mapper>
+

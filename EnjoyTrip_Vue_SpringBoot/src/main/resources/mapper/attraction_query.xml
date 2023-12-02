@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"><mapper namespace="com.mycom.myapp.attractionAll.dao.AttractionAllDao">
+
+	<!-- 범위 검색 기능 -->
+	<select id="attractionAllSearchBoundary" 
+	parameterType="com.mycom.myapp.attractionAll.dto.AttractionSearchBoundaryDto"
+	resultType="com.mycom.myapp.attractionAll.dto.AttractionAllDto">
+		select * from attraction_all
+		where latitude between #{leftLatitude} and #{rightLatitude}
+		and longitude between #{leftLongitude} and #{rightLongitude}
+		<if test='sidoCode!=0'>
+			and sido_code=#{sidoCode}
+		</if>
+		<if test='gugunCode!=0'>
+			and gugun_code=#{gugunCode}
+		</if>
+		<if test='searchKeyWord!=null'>
+			and title like concat('%',#{searchKeyWord},'%')
+		 </if>
+		 limit 100
+		;
+	</select>
+	
+	<!-- 지역 검색 기능 -->
+	<select id="regionSearch" 
+	parameterType="String"
+	resultType="com.mycom.myapp.attractionAll.dto.RegionDto">
+		select * from region
+		where region_name like concat('%',#{searchKeyWord},'%');
+		
+	</select>
+	
+	
+
+    
+</mapper>
+

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"><mapper namespace="com.mycom.myapp.post.dao.PostDao">
+
+
+	<!-- 지도에 나타낼 게시물카드(미니) 조회 --> <!-- 종합적인 기능 다 넣겠심더 -->
+	<select id="postSearch" 
+	parameterType="com.mycom.myapp.post.dto.PostSearchDto"
+	resultType="com.mycom.myapp.post.dto.PostDto">
+		select * from post_img_attraction_info
+		left outer join (
+			select post_id ,count(*) likes from enjoytrip.like
+			group by post_id
+		) sub
+		using(post_id)
+		<where>
+		<if test='boundary!=0'>
+		and latitude between #{leftLatitude} and #{rightLatitude}
+		and longitude between #{leftLongitude} and #{rightLongitude}
+		</if>
+		<if test='followings!=0'>
+			and user_id in (
+				select following_user_id from follow
+				where follower_user_id=#{userId}
+			)
+		</if>
+		<if test='followings==0 and userId!=null'>
+			and user_id=#{userId}
+		</if>
+		<if test='travelPlaceId!=0'>
+			and travel_place_id=#{travelPlaceId}
+		</if>
+		<if test='postTitle!=null'><!-- 게시물 제목 -->
+			and post_title like concat('%',#{postTitle},'%')
+		</if>		
+		<if test='postContent!=null'>
+			and post_content like concat('%',#{postContent},'%')
+		</if>
+		<if test='title!=null'><!-- 장소이름 -->
+			and title like concat('%',#{title},'%')
+		</if>
+		
+		<if test='sidoCode!=0'>
+			and sido_code=#{sidoCode}
+		</if>
+		<if test='gugunCode!=0'>
+			and gugun_code=#{gugunCode}
+		</if>
+		</where>
+		<if test='likes!=0'>
+			order by likes desc
+		</if>
+		<if test='recent!=0'>
+			order by image_upload_date desc
+		</if>
+		
+		limit 100
+		;
+	
+	</select>
+	
+	
+
+	<!-- 범위 검색 기능 -->
+	<select id="attractionAllSearchBoundary" 
+	parameterType="com.mycom.myapp.post.dto.PostDto"
+	resultType="com.mycom.myapp.attractionAll.dto.AttractionAllDto">
+		select * from attraction_all
+		where latitude between #{leftLatitude} and #{rightLatitude}
+		and longitude between #{leftLongitude} and #{rightLongitude}
+		<if test='sidoCode!=0'>
+			and sido_code=#{sidoCode}
+		</if>
+		<if test='gugunCode!=0'>
+			and gugun_code=#{gugunCode}
+		</if>
+		<if test='searchKeyWord!=null'>
+			and title like concat('%',#{searchKeyWord},'%')
+		 </if>
+		 limit 100
+		;
+	</select>
+	
+	<!-- 지역 검색 기능 -->
+	<select id="regionSearch" 
+	parameterType="String"
+	resultType="com.mycom.myapp.attractionAll.dto.RegionDto">
+		select * from region
+		where region_name like concat('%',#{searchKeyWord},'%')
+		limit 100
+		;
+	</select>
+	
+	
+
+    
+</mapper>
+

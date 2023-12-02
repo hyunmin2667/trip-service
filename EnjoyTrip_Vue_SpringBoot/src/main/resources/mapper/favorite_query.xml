@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"><mapper namespace="com.mycom.myapp.favorite.dao.FavoriteDao">
+
+
+	<select id="regionFavoriteList"
+	parameterType="String"
+	resultType="com.mycom.myapp.favorite.dto.FavoriteDto">
+		select * from favorite
+		where user_id = #{userId};
+	</select>
+	
+	<!-- favorite 확인 -->
+	<select id="regionFavoriteSearch"
+	parameterType="com.mycom.myapp.favorite.dto.FavoriteDto"
+	resultType="com.mycom.myapp.favorite.dto.FavoriteDto">
+		select * from favorite
+		where user_id = #{userId}
+		and travel_place_id = #{travelPlaceId};
+	</select>
+	
+	<!-- favorite 삭제 -->
+	<delete id="regionFavoriteDelete" 
+	parameterType="com.mycom.myapp.favorite.dto.FavoriteDto">
+		delete from favorite 
+		where user_id =  #{userId}
+		and travel_place_id = #{travelPlaceId};
+	</delete>
+	<!-- favorite 추가 -->
+	<insert id="regionFavoriteInsert" 
+	parameterType="com.mycom.myapp.favorite.dto.FavoriteDto">
+		insert into favorite 
+		values (#{userId},#{travelPlaceId});
+	</insert>
+	
+    
+</mapper>
+
